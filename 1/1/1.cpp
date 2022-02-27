@@ -55,5 +55,17 @@ int main() {
 	MultiByteToWideChar(CP_ACP, 0, Reporter, -1, wString1, 4096);
 	CreateProcess(NULL, wString1, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
 	WaitForSingleObject(pi.hProcess, INFINITE);
+	ifstream in1;
+	in1.open(fileName2);
+	string nameofthefile;
+	in1 >> nameofthefile;
+	cout << nameofthefile << endl;
+	for (int i = 0; i < n; i++) {
+		employee temp;
+		in1 >> temp.num >> temp.name >> temp.hours;
+		double salary;
+		in1 >> salary;
+		cout << temp.num << " " << temp.name << " " << temp.hours << " " << salary << endl;
+	}
 	return 0;
 }
