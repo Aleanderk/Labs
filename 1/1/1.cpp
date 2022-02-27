@@ -40,5 +40,20 @@ int main() {
 	for (int i = 0; i < n; i++) {
 		cout << arr[i].num << " " << arr[i].name << " " << arr[i].hours << endl;
 	}
+	string fileName2;
+	cout << "Input the name of report file:" << endl;
+	cin >> fileName2;
+	int sum;
+	cout << "Input the payment per hour of work:" << endl;
+	cin >> sum;
+	string sReporter = "Reporter.exe";
+	sReporter += " " + fileName + " " + fileName2 + " " + to_string(sum);
+	const char* Reporter = sReporter.c_str();
+	wchar_t* wString1 = new wchar_t[4096];
+	ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+	MultiByteToWideChar(CP_ACP, 0, Reporter, -1, wString1, 4096);
+	CreateProcess(NULL, wString1, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+	WaitForSingleObject(pi.hProcess, INFINITE);
 	return 0;
 }
