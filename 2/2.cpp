@@ -59,5 +59,15 @@ int main() {
 	}
 	WaitForSingleObject(hThread1, INFINITE);
 	WaitForSingleObject(hThread2, INFINITE);
+	for (int i = 0; i < n; i++) {
+		if (arr[i] == min || arr[i] == max) {
+			arr[i] = arithmeticMean;
+		}
+	}
+	cout << "Changed array: " << endl;
+	for (int i = 0; i < n; i++) {
+		cout << arr[i] << " ";
+	}
+	cout << endl;
 	return 0;
 }
