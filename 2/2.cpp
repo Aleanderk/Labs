@@ -6,6 +6,7 @@ using std::cin;
 static int n;
 volatile int min;
 volatile int max;
+volatile int arithmeticMean;
 DWORD WINAPI min_max(void* iArr)
 {
 	int* arr = (int*)iArr;
@@ -24,9 +25,23 @@ DWORD WINAPI min_max(void* iArr)
 	cout << "Min: " << min << " Max: " << max << endl;
 	return 0;
 }
+DWORD WINAPI average(void* iArr)
+{
+	int* arr = (int*)iArr;
+	int sum = 0;
+	for (int i = 0; i < n; i++) {
+		sum += arr[i];
+		Sleep(12);
+	}
+	arithmeticMean = sum / n;
+	cout << "Arithmetic mean: " << arithmeticMean << endl;
+	return 0;
+}
 int main() {
 	HANDLE hThread1;
 	DWORD IDThread1;
+	HANDLE hThread2;
+	DWORD IDThread2;
 	cout << "Input size of the array: " << endl;
 	cin >> n;
 	int* arr = new int[n];
@@ -38,6 +53,11 @@ int main() {
 	if (hThread1 == NULL) {
 		return GetLastError();
 	}
+	hThread2 = CreateThread(NULL, 0, average, arr, 0, &IDThread2);
+	if (hThread2 == NULL) {
+		return GetLastError();
+	}
 	WaitForSingleObject(hThread1, INFINITE);
+	WaitForSingleObject(hThread2, INFINITE);
 	return 0;
 }
