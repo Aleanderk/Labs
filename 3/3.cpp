@@ -75,5 +75,54 @@ int main() {
 		hThread[i] = CreateThread(NULL, 0, marker, (LPVOID)(&arrF[i]), 0, &dwThread[i-1]);
 		check[i] = false;
 	}
+		SetEvent(st);
+	int end = 0;
+	while (end != markerCount) {
+		if (WaitForMultipleObjects(markerCount, hThread, TRUE, INFINITE) == WAIT_FAILED) {
+			cout << "Error." << endl;
+		}		
+		for (int i = 0; i < n; i++) {
+			cout << arr[i] << " ";
+		}
+		cout << endl;
+		bool term = false;
+		while (!term) {
+			int index;
+			cout << "Enter the number of the thread to be completed: ";
+			cin >> index;
+			index--;
+			if (index >= markerCount || index < 0) {
+				cout << "Error input" << endl;
+			}
+			else if (check[index]) {
+				cout << "This thread was ended." << endl;
+			}
+			else {
+				SetEvent(arrF[index].event[0]);
+				WaitForSingleObject(hThread[index], INFINITE);
+				for (int i = 0; i < n; i++) {
+					cout << arr[i] << " ";
+				}
+				cout << endl;
+				check[index] = true;
+				term = true;
+				end++;
+			}
+		}
+		for (int i = 0; i < markerCount; i++) {
+			if (!check[i]) {
+				ResetEvent(arrF[i].stop);
+				SetEvent(arrF[i].event[1]);
+			}
+		}
+	}
+	CloseHandle(stop);
+	for (int i = 0; i < markerCount; i++) {
+		CloseHandle(hThread[i]);
+		CloseHandle(stop[i]);
+		CloseHandle(arrF[i].event[0]);
+		CloseHandle(arrF[i].event[1]);
+	}
+	DeleteCriticalSection(&criticalSection);
 	return 0;
 }
