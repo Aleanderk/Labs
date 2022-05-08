@@ -23,7 +23,6 @@ DWORD WINAPI min_max(void* iArr)
 		Sleep(7);
 	}
 	cout << "Min: " << min << " Max: " << max << endl;
-	delete[] arr;
 	return 0;
 }
 DWORD WINAPI average(void* iArr)
@@ -36,7 +35,6 @@ DWORD WINAPI average(void* iArr)
 	}
 	arithmeticMean = sum / n;
 	cout << "Arithmetic mean: " << arithmeticMean << endl;
-	delete[] arr;
 	return 0;
 }
 int main() {
