@@ -61,5 +61,34 @@ int main() {
 	WaitForMultipleObjects(numOfSenders, sEvent, TRUE, INFINITE);
 	SetEvent(evToStart);
 
+	while (WaitForMultipleObjects(numOfSenders, senders, TRUE, 0) == WAIT_TIMEOUT) {
+		cout << "Input Z for trying to read file: ";
+		string text;
+		cin >> text;
+		if (text.compare("Z") != 0) {
+			break;
+		}
+		ifstream in;
+		in.open(filename, fstream::binary);
+		string message;	
+		int i = 0;
+		while (i < 2) {
+			in.read((char*)&message, sizeof(string));
+			/*if (in.eof()) {
+				break;
+			}*/
+			cout << message;
+			i++;
+		}		
+		in.close();
+		LeaveCriticalSection(&criticalSection);
+	}
+	
+	for (int i = 0; i < numOfSenders; i++) {
+		CloseHandle(pi[i].hThread);
+		CloseHandle(pi[i].hProcess);
+		CloseHandle(sEvent[i]);
+	}
+	CloseHandle(evToStart);	
 	return 0;
 }
