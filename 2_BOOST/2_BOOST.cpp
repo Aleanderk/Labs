@@ -51,6 +51,16 @@ int main() {
 	boost::thread Average(average, arr);	
 	Min_Max.join();
 	Average.join();
-
+	for (int i = 0; i < n; i++) {
+		if (arr[i] == min || arr[i] == max) {
+			arr[i] = arithmeticMean;
+		}
+	}
+	cout << "Changed array: " << endl;
+	int elem = 0;
+	BOOST_FOREACH(elem, arr) {
+		cout << elem << " ";
+	}
+	cout << endl;
 	return 0;
 }
