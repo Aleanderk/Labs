@@ -1,6 +1,9 @@
 #include <iostream>
 #include <fstream>
-using namespace std;
+using std::endl;
+using std::ofstream;
+using std::ifstream;
+using std::fstream;
 struct employee
 {
 	int num; // идентификационный номер сотрудника

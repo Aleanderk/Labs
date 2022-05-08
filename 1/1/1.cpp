@@ -11,7 +11,14 @@ struct employee
 	char name[10]; // имя сотрудника
 	double hours; // количество отработанных часов
 };
-using namespace std;
+using std::string;
+using std::cout;
+using std::cin;
+using std::endl;
+using std::to_string;
+using std::fstream;
+using std::ifstream;
+using std::ofstream;
 int main() {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -67,5 +74,7 @@ int main() {
 		in1 >> salary;
 		cout << temp.num << " " << temp.name << " " << temp.hours << " " << salary << endl;
 	}
+	delete[] arr;
+	delete[] wString;
 	return 0;
 }
