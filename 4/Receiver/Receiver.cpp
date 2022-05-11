@@ -72,7 +72,7 @@ int main() {
 		in.open(filename, fstream::binary);
 		string message;	
 		int i = 0;
-		while (i < 2) {
+		while (!in.eof()) {
 			in.read((char*)&message, sizeof(string));
 			/*if (in.eof()) {
 				break;
