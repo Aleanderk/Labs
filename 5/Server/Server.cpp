@@ -21,7 +21,94 @@ struct employee
 employee* arr;
 bool* mod;
 int numOfEntries;
-
+DWORD WINAPI mes(LPVOID p) {
+	HANDLE hPipe = (HANDLE)p;	
+	employee* error = new employee;
+	while (true) {
+		bool isRead = false;
+		char message[10];
+		DWORD readBytes;
+		isRead = ReadFile(hPipe, message, 10, &readBytes, NULL);
+		if (!isRead) {
+			if (ERROR_BROKEN_PIPE == GetLastError()) {
+				cout << "Client disconected." << endl;
+				return 0;
+			}
+			else {
+				cout << "Error in reading." << endl;
+				return 0;
+			}
+		}
+		if (strlen(message) > 0) {
+			char command = message[0];
+			message[0] = ' ';
+			int id = atoi(message);
+			DWORD bytesWritten;
+			EnterCriticalSection(&cs);
+			employee* toSend = new employee;
+			for (int i = 0; i < numOfEntries; i++) {
+				if (id == arr[i].num) {
+					toSend->hours = arr[i].hours;
+					toSend->num = arr[i].num;
+					for(int j = 0; j< 10; j++){
+						toSend->name[j] = arr[i].name[j];
+					}
+					break;
+				}
+			}			
+			LeaveCriticalSection(&cs);
+			if (NULL == toSend) {
+				toSend = error;
+			}
+			else {
+				int ind = toSend - arr;
+				switch (command) {
+				case '2':
+					cout << "ID for modifing: " << id << endl;
+					mod[ind] = true;
+					break;
+				case '1':
+					cout << "ID for reading: " << id << endl;
+					break;
+				default:
+					cout << "Error ID." << endl;
+				}
+			}
+			bool isSent = WriteFile(hPipe, toSend, sizeof(employee), &bytesWritten, NULL);
+			if (!isSent) {
+				cout << "Error in sending answer." << endl;
+			}
+			if ('2' == command && toSend != error) {
+				DWORD readBytes;
+				isRead = ReadFile(hPipe, message, numOfEntries, &readBytes, NULL);
+				if (!isRead) {
+					if (ERROR_BROKEN_PIPE == GetLastError()) {
+						cout << "Disconnected." << endl;
+						return 0;
+					}
+					else {
+						cout << "Error in reading." << endl;
+						return 0;
+					}
+				}				
+				if (isRead) {
+					mod[toSend - arr] = false;
+					EnterCriticalSection(&cs);
+					LeaveCriticalSection(&cs);
+				}
+				else {
+					cout << "Error in reading." << endl;
+				}
+				break;
+			}
+		}
+	}
+	FlushFileBuffers(hPipe);
+	DisconnectNamedPipe(hPipe);
+	CloseHandle(hPipe);
+	delete error;
+	return 0;
+}
 int main() {
 	char fileName[66];
 	cout << "Input name of the file:" << endl;
@@ -77,6 +164,25 @@ int main() {
 	SetEvent(hStartALL);
 	HANDLE hPipe;
 	HANDLE* hThreads = new HANDLE[numOfProcesses];
-	
+	for (int i = 0; i < numOfProcesses; i++) {
+		hPipe = CreateNamedPipe("\\\\.\\pipe\\nPipe", PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, PIPE_UNLIMITED_INSTANCES, 0, 0, INFINITE, NULL);
+		if (INVALID_HANDLE_VALUE == hPipe) {
+			cout << "Creating named pipe ended with error." << endl;
+			break;
+		}
+		hThreads[i] = CreateThread(NULL, 0, mes, (LPVOID)hPipe, 0, NULL);
+	}
+	WaitForMultipleObjects(numOfProcesses, hThreads, TRUE, INFINITE);
+	cout << "File after changings:" << endl;
+	for (int i = 0; i < numOfEntries; i++) {
+		cout << arr[i].num << " " << arr[i].name << " " << arr[i].hours << endl;
+	}
+	cout << "Press any key to end: "<< endl;
+	getch();
+	DeleteCriticalSection(&cs);
+	delete[] hThreads;
+	delete[] hEvents;
+	delete[] mod;
+	delete[] arr;
 	return 0;
 }
